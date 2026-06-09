@@ -1,0 +1,849 @@
+Casi sin almacenamiento … Si te quedas sin almacenamiento, no podrás crear, editar ni subir archivos. Comparte 100 GB de almacenamiento con los miembros de tu familia por USD 1.99/mes.
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetStock - Control de Inventario Clínico</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-brand-200">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <!-- Vet Logo Badge -->
+                    <div class="p-2 bg-brand-500 rounded-xl text-white shadow-md shadow-brand-500/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 leading-none">VetStock</h1>
+                        <span class="text-xs text-brand-600 font-semibold tracking-wide uppercase">Clínica Veterinaria</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Sistema Online
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        
+        <!-- DASHBOARD SUMMARY CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Meds -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total de Medicamentos</p>
+                    <h3 id="stat-total" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+            </div>
+            <!-- Out of stock -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sin Existencias (Agotado)</p>
+                    <h3 id="stat-empty" class="text-2xl font-bold text-red-600 mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-red-50 text-red-600 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+            </div>
+            <!-- Critically Low -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stock Crítico o Bajo</p>
+                    <h3 id="stat-low" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <!-- Near Expiration -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Próximos a Vencer (90 d)</p>
+                    <h3 id="stat-expiry" class="text-2xl font-bold text-indigo-600 mt-1">0</h3>
+                </div>
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 3V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS & ACTIONS CONTROLLER -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold text-slate-900">Panel de Control de Inventario</h2>
+                    <p class="text-xs text-slate-500">Busca, filtra, edita o registra suministros y medicamentos en tiempo real</p>
+                </div>
+                
+                <!-- Quick actions -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openModal('add')" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl text-sm transition-all shadow-sm shadow-brand-600/10 active:scale-[0.98]">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Registrar Medicación
+                    </button>
+                    
+                    <button onclick="exportToCSV()" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-sm transition-all active:scale-[0.98]" title="Exportar inventario a archivo Excel/CSV">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Descargar CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTERS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
+                <!-- Text Search -->
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input id="filter-search" oninput="applyFiltersAndRender()" type="text" placeholder="Buscar medicamento o componente..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                </div>
+
+                <!-- Species Filter -->
+                <div>
+                    <select id="filter-species" onchange="applyFiltersAndRender()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        <option value="all">🐱🐶 Especies: Todas</option>
+                        <option value="Canino">🐶 Solo Caninos</option>
+                        <option value="Felino">🐱 Solo Felinos</option>
+                        <option value="Ambos">🐾 Ambos (Multiespecie)</option>
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <select id="filter-category" onchange="applyFiltersAndRender()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        <option value="all">📂 Categoría: Todas</option>
+                        <option value="Anestésico/Analgésico">Anestésico/Analgésico</option>
+                        <option value="Antibiótico">Antibiótico</option>
+                        <option value="Antiparasitario">Antiparasitario</option>
+                        <option value="Antiinflamatorio">Antiinflamatorio</option>
+                        <option value="Dermatológico">Dermatológico</option>
+                        <option value="Vacuna">Vacuna</option>
+                        <option value="Suplemento">Suplemento/Otros</option>
+                    </select>
+                </div>
+
+                <!-- Stock Status Filter -->
+                <div>
+                    <select id="filter-status" onchange="applyFiltersAndRender()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        <option value="all">📈 Estado de Stock: Todos</option>
+                        <option value="low">⚠️ Stock Crítico o Bajo</option>
+                        <option value="empty">🚨 Sin Stock / Agotado</option>
+                        <option value="normal">✅ Stock Saludable</option>
+                        <option value="expiring">⏳ Por Vencer (<90 días)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATION TOAST WRAPPER -->
+        <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full"></div>
+
+        <!-- MAIN TABLE / DATA LIST -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                            <th class="py-4 px-6">Medicamento / Principio Activo</th>
+                            <th class="py-4 px-4 text-center">Especie Destino</th>
+                            <th class="py-4 px-4">Categoría</th>
+                            <th class="py-4 px-4 text-center">Cantidad Stock</th>
+                            <th class="py-4 px-4">Min. Requerido</th>
+                            <th class="py-4 px-4">Vencimiento</th>
+                            <th class="py-4 px-4 text-right">Precio Unitario</th>
+                            <th class="py-4 px-6 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Filled dynamically by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State UI -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m12+4.5H12"></path></svg>
+                </div>
+                <h3 class="text-base font-bold text-slate-800">No se encontraron medicamentos</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-xs">Intenta modificando el término de búsqueda o desactivando algunos de los filtros seleccionados.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
+            <p>&copy; 2026 VetStock. Todos los derechos reservados. Diseñado para un control de farmacia veterinaria seguro y eficiente.</p>
+        </div>
+    </footer>
+
+    <!-- ADD/EDIT MODAL -->
+    <div id="med-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Modal backdrop -->
+            <div onclick="closeModal()" class="fixed inset-0 bg-slate-900/60 transition-opacity" aria-hidden="true"></div>
+
+            <!-- Spacing hack for screen centering -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal Content -->
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100">
+                <div class="bg-brand-600 px-6 py-4 flex items-center justify-between text-white">
+                    <h3 id="modal-title" class="text-lg font-bold">Registrar Nuevo Medicamento</h3>
+                    <button onclick="closeModal()" class="text-brand-100 hover:text-white transition-all focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <form id="med-form" onsubmit="saveMedication(event)" class="p-6 space-y-4">
+                    <input type="hidden" id="med-id">
+
+                    <div>
+                        <label for="med-name" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nombre Comercial *</label>
+                        <input type="text" id="med-name" required placeholder="Ej. Apoquel 16mg" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="med-active" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Principio Activo *</label>
+                            <input type="text" id="med-active" required placeholder="Ej. Oclacitinib" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        </div>
+                        <div>
+                            <label for="med-category" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Categoría *</label>
+                            <select id="med-category" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                <option value="Anestésico/Analgésico">Anestésico/Analgésico</option>
+                                <option value="Antibiótico">Antibiótico</option>
+                                <option value="Antiparasitario">Antiparasitario</option>
+                                <option value="Antiinflamatorio">Antiinflamatorio</option>
+                                <option value="Dermatológico">Dermatológico</option>
+                                <option value="Vacuna">Vacuna</option>
+                                <option value="Suplemento">Suplemento/Otros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Especie de Destino *</label>
+                            <select id="med-species" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                                <option value="Canino">🐶 Canino</option>
+                                <option value="Felino">🐱 Felino</option>
+                                <option value="Ambos">🐾 Ambos (Multiespecie)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="med-location" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Ubicación física</label>
+                            <input type="text" id="med-location" placeholder="Ej. Estante B1, Refri" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label for="med-stock" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Cantidad *</label>
+                            <input type="number" id="med-stock" required min="0" placeholder="0" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        </div>
+                        <div>
+                            <label for="med-min" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Mínimo *</label>
+                            <input type="number" id="med-min" required min="0" placeholder="0" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        </div>
+                        <div>
+                            <label for="med-price" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Precio Unit. *</label>
+                            <input type="number" id="med-price" required min="0" step="0.01" placeholder="0.00" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="med-expiry" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Fecha de Vencimiento *</label>
+                        <input type="date" id="med-expiry" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all">
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex justify-end space-x-2">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium rounded-xl text-sm transition-all focus:outline-none">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl text-sm transition-all focus:outline-none">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRMATION MODAL (DELETE) -->
+    <div id="delete-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="delete-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div onclick="closeDeleteModal()" class="fixed inset-0 bg-slate-900/60 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100 p-6">
+                <div class="flex items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 text-red-600 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 id="delete-title" class="text-base leading-6 font-bold text-slate-900">¿Eliminar medicamento?</h3>
+                        <div class="mt-2">
+                            <p class="text-xs text-slate-500">¿Está seguro de que desea eliminar <strong id="delete-item-name" class="text-slate-800"></strong> de forma permanente del sistema? Esta acción no se puede deshacer.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse space-x-2 space-x-reverse">
+                    <button type="button" id="confirm-delete-btn" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 hover:bg-red-700 text-base font-medium text-white focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                        Eliminar
+                    </button>
+                    <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-200 shadow-sm px-4 py-2 bg-white hover:bg-slate-50 text-base font-medium text-slate-700 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm transition-all">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT STATE AND FUNCTIONS -->
+    <script>
+        // Essential Veterinary Stock Initial Dataset
+        let inventory = [
+            {
+                id: '1',
+                name: 'Meloxicam Oral Suspensión 10ml',
+                activeIngredient: 'Meloxicam 1.5mg/ml',
+                category: 'Antiinflamatorio',
+                species: 'Ambos',
+                stock: 42,
+                minStock: 15,
+                expiryDate: '2027-04-12',
+                price: 18.50,
+                location: 'Estante A-3'
+            },
+            {
+                id: '2',
+                name: 'Clavaseptin 250mg (Blister x10)',
+                activeIngredient: 'Amoxicilina + Ácido Clavulánico',
+                category: 'Antibiótico',
+                species: 'Ambos',
+                stock: 8,
+                minStock: 15, // Low stock indicator triggered
+                expiryDate: '2026-12-05',
+                price: 24.90,
+                location: 'Estante B-1'
+            },
+            {
+                id: '3',
+                name: 'Bravecto Perros Medianos (10-20kg)',
+                activeIngredient: 'Fluralaner 500mg',
+                category: 'Antiparasitario',
+                species: 'Canino',
+                stock: 25,
+                minStock: 5,
+                expiryDate: '2028-02-28',
+                price: 52.00,
+                location: 'Vitrina Central'
+            },
+            {
+                id: '4',
+                name: 'Apoquel Dermatológico 16mg',
+                activeIngredient: 'Oclacitinib maleato',
+                category: 'Dermatológico',
+                species: 'Canino',
+                stock: 4,
+                minStock: 10, // Critical Stock
+                expiryDate: '2027-08-15',
+                price: 68.00,
+                location: 'Estante C-2'
+            },
+            {
+                id: '5',
+                name: 'Broadline Gatos (2.5 - 7.5kg)',
+                activeIngredient: 'Eprinomectina + Fipronil',
+                category: 'Antiparasitario',
+                species: 'Felino',
+                stock: 15,
+                minStock: 6,
+                expiryDate: '2026-11-20',
+                price: 26.50,
+                location: 'Vitrina Central'
+            },
+            {
+                id: '6',
+                name: 'Vacuna Nobivac Tricat Trio',
+                activeIngredient: 'Calicivirus + Rinotraqueítis + Panleucopenia',
+                category: 'Vacuna',
+                species: 'Felino',
+                stock: 30,
+                minStock: 12,
+                expiryDate: '2026-07-30', // Near expiry (<90 days relative to June 2026)
+                price: 14.50,
+                location: 'Refrigerador Clínico 1'
+            },
+            {
+                id: '7',
+                name: 'Tramadol Inyectable 50mg/ml',
+                activeIngredient: 'Tramadol Clorhidrato',
+                category: 'Anestésico/Analgésico',
+                species: 'Ambos',
+                stock: 0, // Out of stock
+                minStock: 10,
+                expiryDate: '2027-01-10',
+                price: 9.80,
+                location: 'Cajón Narcóticos Securizado'
+            },
+            {
+                id: '8',
+                name: 'Suplemento Condroprotector Artrovet',
+                activeIngredient: 'Glucosamina + Condroitina',
+                category: 'Suplemento',
+                species: 'Canino',
+                stock: 14,
+                minStock: 5,
+                expiryDate: '2028-05-15',
+                price: 34.00,
+                location: 'Pasillo 1'
+            }
+        ];
+
+        // State holder for active delete item id
+        let deleteTargetId = null;
+
+        // On document load setup
+        document.addEventListener("DOMContentLoaded", () => {
+            applyFiltersAndRender();
+        });
+
+        // Main rendering orchestrator
+        function applyFiltersAndRender() {
+            const searchValue = document.getElementById('filter-search').value.toLowerCase().trim();
+            const speciesValue = document.getElementById('filter-species').value;
+            const categoryValue = document.getElementById('filter-category').value;
+            const statusValue = document.getElementById('filter-status').value;
+
+            const filteredData = inventory.filter(item => {
+                // Search match
+                const matchSearch = item.name.toLowerCase().includes(searchValue) || 
+                                    item.activeIngredient.toLowerCase().includes(searchValue);
+                
+                // Species match
+                const matchSpecies = speciesValue === 'all' || item.species === speciesValue;
+
+                // Category match
+                const matchCategory = categoryValue === 'all' || item.category === categoryValue;
+
+                // Status match
+                let matchStatus = true;
+                const isLow = item.stock <= item.minStock && item.stock > 0;
+                const isEmpty = item.stock === 0;
+                
+                // Expiry proximity (calculated as under 90 days from "today" assumed June 8, 2026)
+                const today = new Date('2026-06-08');
+                const expiry = new Date(item.expiryDate);
+                const diffTime = expiry - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const isExpiring = diffDays <= 90 && diffDays >= 0;
+
+                if (statusValue === 'low') {
+                    matchStatus = isLow;
+                } else if (statusValue === 'empty') {
+                    matchStatus = isEmpty;
+                } else if (statusValue === 'normal') {
+                    matchStatus = !isLow && !isEmpty;
+                } else if (statusValue === 'expiring') {
+                    matchStatus = isExpiring;
+                }
+
+                return matchSearch && matchSpecies && matchCategory && matchStatus;
+            });
+
+            renderTable(filteredData);
+            updateDashboardStats();
+        }
+
+        // Render standard inventory list
+        function renderTable(data) {
+            const tableBody = document.getElementById('inventory-table-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            data.forEach(item => {
+                const today = new Date('2026-06-08');
+                const expiry = new Date(item.expiryDate);
+                const diffTime = expiry - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Classes / badging based on parameters
+                let stockBadgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                let statusLabel = "Saludable";
+
+                if (item.stock === 0) {
+                    stockBadgeClass = "bg-red-50 text-red-700 border-red-200 font-bold animate-pulse";
+                    statusLabel = "Agotado";
+                } else if (item.stock <= item.minStock) {
+                    stockBadgeClass = "bg-amber-50 text-amber-700 border-amber-200 font-semibold";
+                    statusLabel = "Bajo";
+                }
+
+                // Species designators
+                let speciesIcon = "🐾";
+                let speciesBg = "bg-purple-50 text-purple-700 border-purple-200";
+                if (item.species === 'Canino') {
+                    speciesIcon = "🐶 Canino";
+                    speciesBg = "bg-blue-50 text-blue-700 border-blue-200";
+                } else if (item.species === 'Felino') {
+                    speciesIcon = "🐱 Felino";
+                    speciesBg = "bg-pink-50 text-pink-700 border-pink-200";
+                } else {
+                    speciesIcon = "🐾 Ambos";
+                }
+
+                // Date warning classes
+                let dateColorClass = "text-slate-600";
+                if (diffDays < 0) {
+                    dateColorClass = "text-red-600 font-bold decoration-wavy line-through";
+                } else if (diffDays <= 90) {
+                    dateColorClass = "text-indigo-600 font-semibold";
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-slate-900">${escapeHTML(item.name)}</div>
+                        <div class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                            Activo: ${escapeHTML(item.activeIngredient)}
+                            ${item.location ? `| <span class="text-slate-400">📍 ${escapeHTML(item.location)}</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${speciesBg}">
+                            ${speciesIcon}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-slate-600">${item.category}</td>
+                    <td class="py-4 px-4 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="adjustStock('${item.id}', -1)" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs transition-colors">-</button>
+                            <span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 py-1 text-xs rounded-lg border ${stockBadgeClass}">
+                                ${item.stock}
+                            </span>
+                            <button onclick="adjustStock('${item.id}', 1)" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs transition-colors">+</button>
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 font-mono text-slate-500">${item.minStock}</td>
+                    <td class="py-4 px-4">
+                        <span class="${dateColorClass} block text-xs">
+                            ${item.expiryDate}
+                        </span>
+                        <span class="text-[10px] text-slate-400">
+                            ${diffDays < 0 ? 'Vencido' : `${diffDays} días rest.`}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-right font-mono font-bold text-slate-800">$${item.price.toFixed(2)}</td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="inline-flex rounded-lg shadow-sm border border-slate-200">
+                            <button onclick="openModal('edit', '${item.id}')" class="px-3 py-1.5 bg-white text-slate-700 hover:bg-slate-50 rounded-l-lg text-xs font-medium border-r border-slate-200 transition-colors flex items-center" title="Editar detalles">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Editar
+                            </button>
+                            <button onclick="requestDelete('${item.id}')" class="px-3 py-1.5 bg-white text-red-600 hover:bg-red-50 rounded-r-lg text-xs font-medium transition-colors flex items-center" title="Eliminar del inventario">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Quick adjustment of stock quantities (+/- actions)
+        function adjustStock(id, amount) {
+            const item = inventory.find(i => i.id === id);
+            if (item) {
+                const newStock = item.stock + amount;
+                if (newStock >= 0) {
+                    item.stock = newStock;
+                    applyFiltersAndRender();
+                    showToast(`Cantidad de ${item.name} modificada a ${newStock}`, 'success');
+                } else {
+                    showToast('La cantidad de inventario no puede ser inferior a 0', 'warning');
+                }
+            }
+        }
+
+        // Dashboard calculations
+        function updateDashboardStats() {
+            const total = inventory.length;
+            const empty = inventory.filter(i => i.stock === 0).length;
+            const low = inventory.filter(i => i.stock <= i.minStock && i.stock > 0).length;
+            
+            // Expiry stats calculation
+            const today = new Date('2026-06-08');
+            const expiring = inventory.filter(i => {
+                const expiry = new Date(i.expiryDate);
+                const diffTime = expiry - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays <= 90 && diffDays >= 0;
+            }).length;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-empty').textContent = empty;
+            document.getElementById('stat-low').textContent = low;
+            document.getElementById('stat-expiry').textContent = expiring;
+        }
+
+        // Display Custom Modal for Add or Edit Actions
+        function openModal(mode, id = null) {
+            const modal = document.getElementById('med-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('med-form');
+            
+            form.reset();
+            document.getElementById('med-id').value = '';
+
+            if (mode === 'add') {
+                title.textContent = 'Registrar Nuevo Medicamento';
+                // Set default future expiry date (e.g., 1 year ahead)
+                const defaultDate = new Date('2027-06-08').toISOString().split('T')[0];
+                document.getElementById('med-expiry').value = defaultDate;
+            } else if (mode === 'edit' && id) {
+                title.textContent = 'Editar Información de Medicación';
+                const item = inventory.find(i => i.id === id);
+                if (item) {
+                    document.getElementById('med-id').value = item.id;
+                    document.getElementById('med-name').value = item.name;
+                    document.getElementById('med-active').value = item.activeIngredient;
+                    document.getElementById('med-category').value = item.category;
+                    document.getElementById('med-species').value = item.species;
+                    document.getElementById('med-location').value = item.location || '';
+                    document.getElementById('med-stock').value = item.stock;
+                    document.getElementById('med-min').value = item.minStock;
+                    document.getElementById('med-price').value = item.price;
+                    document.getElementById('med-expiry').value = item.expiryDate;
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('med-modal').classList.add('hidden');
+        }
+
+        // Action when form triggers submit action
+        function saveMedication(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('med-id').value;
+            const name = document.getElementById('med-name').value;
+            const activeIngredient = document.getElementById('med-active').value;
+            const category = document.getElementById('med-category').value;
+            const species = document.getElementById('med-species').value;
+            const location = document.getElementById('med-location').value;
+            const stock = parseInt(document.getElementById('med-stock').value);
+            const minStock = parseInt(document.getElementById('med-min').value);
+            const price = parseFloat(document.getElementById('med-price').value);
+            const expiryDate = document.getElementById('med-expiry').value;
+
+            if (id) {
+                // Update operation
+                const index = inventory.findIndex(i => i.id === id);
+                if (index !== -1) {
+                    inventory[index] = { id, name, activeIngredient, category, species, stock, minStock, price, expiryDate, location };
+                    showToast('Medicamento actualizado correctamente', 'success');
+                }
+            } else {
+                // Create operation
+                const newId = String(Date.now());
+                inventory.push({ id: newId, name, activeIngredient, category, species, stock, minStock, price, expiryDate, location });
+                showToast('Nuevo medicamento registrado exitosamente', 'success');
+            }
+
+            closeModal();
+            applyFiltersAndRender();
+        }
+
+        // Open Confirmation Delete Box instead of using Native browser alert dialogs
+        function requestDelete(id) {
+            const item = inventory.find(i => i.id === id);
+            if (!item) return;
+
+            deleteTargetId = id;
+            document.getElementById('delete-item-name').textContent = item.name;
+            
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+            confirmBtn.onclick = executeDelete;
+
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deleteTargetId = null;
+        }
+
+        function executeDelete() {
+            if (deleteTargetId) {
+                const item = inventory.find(i => i.id === deleteTargetId);
+                const itemName = item ? item.name : 'Medicamento';
+                inventory = inventory.filter(i => i.id !== deleteTargetId);
+                applyFiltersAndRender();
+                showToast(`"${itemName}" eliminado exitosamente`, 'info');
+            }
+            closeDeleteModal();
+        }
+
+        // Export data directly as CSV
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Nombre,Principio Activo,Categoria,Especie Destino,Stock,Minimo Requerido,Precio Unitario,Fecha Vencimiento,Ubicacion\n";
+
+            inventory.forEach(item => {
+                const row = [
+                    item.id,
+                    `"${item.name.replace(/"/g, '""')}"`,
+                    `"${item.activeIngredient.replace(/"/g, '""')}"`,
+                    `"${item.category}"`,
+                    `"${item.species}"`,
+                    item.stock,
+                    item.minStock,
+                    item.price,
+                    item.expiryDate,
+                    `"${(item.location || '').replace(/"/g, '""')}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `inventario_vetstock_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); // Required for FF
+
+            link.click();
+            document.body.removeChild(link);
+            showToast('Inventario exportado y descargado exitosamente como CSV', 'success');
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-emerald-50 text-emerald-800 border-emerald-200";
+            let iconSvg = `<svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            
+            if (type === 'warning') {
+                bgClass = "bg-amber-50 text-amber-800 border-amber-200";
+                iconSvg = `<svg class="w-5 h-5 text-amber-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else if (type === 'info') {
+                bgClass = "bg-blue-50 text-blue-800 border-blue-200";
+                iconSvg = `<svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            toast.className = `flex items-center p-4 rounded-xl border ${bgClass} shadow-lg transition-all duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <div class="flex items-center flex-1">
+                    ${iconSvg}
+                    <span class="text-xs font-semibold">${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto Remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // HTML Sanitizer helper to prevent injection
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
